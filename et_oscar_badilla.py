@@ -1,1 +1,5 @@
-#Acá voy a hacer mi ejercicio de Oscar Badilla
+'''
+La Academia de Hechicería Astralis requiere un programa en Python para administrar su
+grimorio de hechizos
+'''
+
