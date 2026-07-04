@@ -55,6 +55,82 @@ def pergaminos_escuela(escuela, hechizos, reservas):
     
     print(f"Total de pergaminos para la escuela '{escuela}': {cont_pergaminos_escuela}")
     
+def busqueda_precio(precio_min, precio_max, hechizos, reservas):
+    hechizos_en_rango = []
+    
+    for codigo, datos in hechizos.items():
+        precio, stock = reservas[codigo]
+        if precio_min <= precio <= precio_max and stock > 0:
+            hechizos_en_rango.append(f"{datos[0]}--{codigo}")
+    
+    if hechizos_en_rango:
+        hechizos_en_rango.sort()
+        print("Hechizos disponibles en el rango de precios:")
+        for hechizo in hechizos_en_rango:
+            print(hechizo)
+    else:
+        print("No hay hechizos en ese rango de precios.")
+
+def buscar_codigo(codigo):
+    return codigo.upper() in reservas
+
+def actualizar_precio(codigo, nuevo_precio, reservas):
+    if buscar_codigo(codigo):
+        reservas[codigo] = [nuevo_precio, reservas[codigo][1]]
+        return True
+    return False
+
+def validar_codigo(codigo):
+    return codigo.strip() != "" and not buscar_codigo(codigo)
+
+def validar_nombre(nombre):
+    return nombre.strip() != ""
+
+def validar_escuela(escuela):
+    return escuela.lower() in ['elemental', 'arcana', 'oscura']
+
+def valida_mayor_cero(valor):
+    try:
+        valor = int(valor)
+        return valor > 0
+    except ValueError:
+        return False
+    
+def validar_poder(poder):
+    return valida_mayor_cero(poder)
+
+def validar_rareza(rareza):
+    return rareza.upper() in ['C', 'R', 'L']
+
+def validar_es_prohibido(es_prohibido):
+    return es_prohibido.lower() in ['s', 'n']
+
+def validar_creador(creador):
+    return creador.strip() != ""
+
+def validar_precio(precio):
+    return valida_mayor_cero(precio)
+
+def validar_stock(stock):
+    try:
+        stock = int(stock)
+        return stock >= 0
+    except ValueError:
+        return False
+
+def agregar_hechizo(codigo, nombre, escuela, poder, rareza, es_prohibido, creador, precio, stock, hechizos, reservas):
+    if buscar_codigo(codigo):
+        return False
+    hechizos[codigo] = [nombre, escuela, poder, rareza, es_prohibido, creador]
+    reservas[codigo] = [precio, stock]
+    return True
+
+def eliminar_hechizo(codigo, hechizos, reservas):
+    if buscar_codigo(codigo):
+        del hechizos[codigo]
+        del reservas[codigo]
+        return True
+    return False
 
 while True:
     opcion = leer_opcion()
@@ -64,16 +140,89 @@ while True:
         pergaminos_escuela(escuela, hechizos, reservas)
     elif opcion == 2:
         # Implementar búsqueda de hechizos por rango de precio
-        pass
+        while True:
+            try:
+                precio_min = int(input("Ingrese el precio mínimo: "))
+                precio_max = int(input("Ingrese el precio máximo: "))
+                if precio_min < 0 or precio_max < 0 or precio_min > precio_max:
+                    print("Debe ingresar valores válidos para el rango de precios.")
+                else:
+                    busqueda_precio(precio_min, precio_max, hechizos, reservas)
+                    break
+            except ValueError:
+                print("Debe ingresar valores enteros.") 
     elif opcion == 3:
         # Implementar actualización de precio de hechizo
-        pass
+        while True:
+            try:
+                codigo = input("Ingrese el código del hechizo: ")
+                if not buscar_codigo(codigo):
+                    print("El código no existe.")
+                else:
+                    nuevo_precio = int(input("Ingrese el nuevo precio: "))
+                    if nuevo_precio < 0:
+                        print("El precio debe ser un valor positivo.")
+                    else:
+                        if actualizar_precio(codigo, nuevo_precio, reservas):
+                            print("Precio actualizado.")
+                        else:
+                            print("El código no existe")
+                respuesta = input("¿Desea actualizar otro precio (s/n)? ")
+                if respuesta.lower() == "n":
+                    break
+            except ValueError:
+                print("Debe ingresar un valor entero para el precio.")
     elif opcion == 4:
         # Implementar agregar hechizo
-        pass
+        codigo = input("Ingrese el código del hechizo: ")
+        
+        if not validar_codigo(codigo):
+            print("Código inválido o ya existe.")
+            continue
+        nombre = input("Ingrese el nombre del hechizo: ")
+        if not validar_nombre(nombre):
+            print("Nombre inválido.")
+            continue
+        escuela = input("Ingrese la escuela de magia: ")
+        if not validar_escuela(escuela):
+            print("Escuela inválida.")
+            continue
+        poder = input("Ingrese el poder del hechizo: ")
+        if not validar_poder(poder):
+            print("Poder inválido.")
+            continue
+        rareza = input("Ingrese la rareza del hechizo (C, R, L): ")
+        if not validar_rareza(rareza):
+            print("Rareza inválida.")
+            continue
+        es_prohibido = input("¿Es prohibido? (s/n): ")
+        if not validar_es_prohibido(es_prohibido):
+            print("Valor inválido para es_prohibido.")
+            continue
+        creador = input("Ingrese el nombre del creador: ")
+        if not validar_creador(creador):
+            print("Creador inválido.")
+            continue
+        precio = input("Ingrese el precio del hechizo: ")
+        if not validar_precio(precio):
+            print("Precio inválido.")
+            continue
+        stock = input("Ingrese el stock disponible: ")
+        if not validar_stock(stock):
+            print("Stock inválido.")
+            continue
+        #Agregamos el hechizo
+        if agregar_hechizo(codigo, nombre, escuela, int(poder), rareza.upper(), es_prohibido.lower() == 's', creador, int(precio), int(stock), hechizos, reservas):
+            print("Hechizo agregado.")
+        else:
+            print("El código ya existe.")
     elif opcion == 5:
         # Implementar eliminar hechizo
-        pass
+        codigo = input("Ingrese el código del hechizo a eliminar: ")
+        if eliminar_hechizo(codigo, hechizos, reservas):
+            print("Hechizo eliminado.")
+        else:
+            print("El código no existe.")
     elif opcion == 6:
         print("Saliendo del programa...")
         break
